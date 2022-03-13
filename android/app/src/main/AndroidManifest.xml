@@ -1,15 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-<<<<<<< HEAD
-    package="com.example.breathe">
+    package="com.vazzirr.breathe">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-=======
-    package="com.vazzirr.breathe">
->>>>>>> 8dc03a5f0988ac73b2f591fc0221cea7358afdd6
    <application
-        android:label="breathe"
+        android:label="Breathe"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
