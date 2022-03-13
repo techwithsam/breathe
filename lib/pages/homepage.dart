@@ -3,7 +3,8 @@ import 'package:breathe/pages/settings.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final String uid;
+  const HomePage({Key? key, required this.uid}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
