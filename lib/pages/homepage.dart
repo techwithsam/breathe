@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:breathe/pages/settings.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +10,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final player = AudioCache();
+
+  @override
+  void initState() {
+    player.play(
+      "audio.mp3",
+      isNotification: true,
+      stayAwake: true,
+      volume: 0.1,
+    );
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,8 +85,18 @@ class _HomePageState extends State<HomePage> {
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
-          children: const [
-            Text('Hello, John Doe'),
+          children: [
+            const Text('Hello, John Doe'),
+            TextButton(
+              onPressed: () => player.play(
+                "audio.mp3",
+                isNotification: true,
+                stayAwake: true,
+                volume: 0.1,
+                mode: PlayerMode.MEDIA_PLAYER,
+              ),
+              child: const Text('Play Sound'),
+            ),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:breathe/auth/splash.dart';
 import 'package:breathe/cubit/timer_cubit.dart';
+import 'package:breathe/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
