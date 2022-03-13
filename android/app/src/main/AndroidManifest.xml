@@ -1,9 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<<<<<<< HEAD
     package="com.example.breathe">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+=======
+    package="com.vazzirr.breathe">
+>>>>>>> 8dc03a5f0988ac73b2f591fc0221cea7358afdd6
    <application
         android:label="breathe"
         android:name="${applicationName}"

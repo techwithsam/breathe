@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "990912901691",
+    "firebase_url": "https://breathe-76f24-default-rtdb.firebaseio.com",
+    "project_id": "breathe-76f24",
+    "storage_bucket": "breathe-76f24.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:990912901691:android:9fc39c88125299452b621e",
+        "android_client_info": {
+          "package_name": "com.vazzirr.breathe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "990912901691-km5lensbp6cdq58vfct0j3ksqqg8v3c9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC580NOup4O0Dy41J6x-xb6nYEx80BzWqg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "990912901691-km5lensbp6cdq58vfct0j3ksqqg8v3c9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
