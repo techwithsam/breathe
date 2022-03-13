@@ -72,7 +72,7 @@ class AppTextFormField extends StatelessWidget {
         labelStyle: const TextStyle(color: Colors.white, fontSize: 14),
         hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
         suffixIcon: suffixIcon,
-        suffix: suffix ?? null,
+        suffix: suffix,
         fillColor: const Color(0xFFF8F8F8),
         contentPadding:
             const EdgeInsets.symmetric(vertical: 10, horizontal: 10),

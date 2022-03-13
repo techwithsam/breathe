@@ -37,8 +37,18 @@ dependencies:
   intl: ^0.17.0
   carousel_slider: ^4.0.0
   table_calendar: ^3.0.4
-  flutter_bloc: ^8.0.1
   audioplayers: ^0.20.1
+
+  # State-management
+  flutter_bloc: ^8.0.1
+
+  # Firebase packages
+  firebase_core: ^1.5.0
+  firebase_auth: ^3.0.2
+  google_sign_in: ^5.0.7
+  firebase_database: ^7.2.0
+  cloud_firestore: ^2.5.0
+  firebase_storage: ^10.0.3
 
 dev_dependencies:
   flutter_test:
