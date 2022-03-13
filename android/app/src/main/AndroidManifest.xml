@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.breathe">
+    package="com.vazzirr.breathe">
    <application
         android:label="breathe"
         android:name="${applicationName}"
