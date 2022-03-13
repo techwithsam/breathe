@@ -1,31 +1,54 @@
+import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:breathe/pages/settings.dart';
+import 'package:breathe/widgets/bgimg.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  final String uid;
-  const HomePage({Key? key, required this.uid}) : super(key: key);
+  final String? uid;
+  const HomePage({Key? key, this.uid}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final player = AudioCache();
+  Timer? timer;
+  late final AnimationController animationController = AnimationController(
+    duration: const Duration(seconds: 3),
+    vsync: this,
+  )..repeat();
 
   @override
   void initState() {
-    player.play(
+    super.initState();
+    player.loop(
       "audio.mp3",
       isNotification: true,
       stayAwake: true,
       volume: 0.1,
     );
-    super.initState();
+    timer = Timer.periodic(
+        const Duration(seconds: 5), (Timer t) => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    String getImages() {
+      List imgs = ['spl.jpg', 'splash.jpg'].toList();
+
+      var randomItem = (imgs.toList()..shuffle()).first;
+
+      return '$randomItem';
+    }
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -85,20 +108,23 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            const Text('Hello, John Doe'),
-            TextButton(
-              onPressed: () => player.play(
-                "audio.mp3",
-                isNotification: true,
-                stayAwake: true,
-                volume: 0.1,
-                mode: PlayerMode.MEDIA_PLAYER,
-              ),
-              child: const Text('Play Sound'),
-            ),
-          ],
+        child: AnimatedBuilder(
+          animation: animationController,
+          child: Stack(
+            children: [
+              backgroundImage(getImages()),
+            ],
+          ),
+          builder: (context, _widget) {
+            return Transform.scale(
+              scale: animationController.value * 1,
+              child: _widget,
+            );
+            // return Transform.rotate(
+            //   angle: animationController.value * 20,
+            //   child: _widget,
+            // );
+          },
         ),
       ),
     );

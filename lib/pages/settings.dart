@@ -46,7 +46,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
               child: Column(
                 children: [
                   getRow(text: 'Guide Sound', btnText: 'Sound-name'),
@@ -77,24 +78,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                                 child: Row(
                                   children: [
-                                    TextButton(
-                                      child: const Icon(Icons.remove),
-                                      onPressed: () {
-                                        BlocProvider.of<TimerCubit>(context)
-                                            .decrement();
-                                      },
+                                    Expanded(
+                                      child: TextButton(
+                                        child: const Icon(Icons.remove),
+                                        onPressed: () {
+                                          BlocProvider.of<TimerCubit>(context)
+                                              .decrement();
+                                        },
+                                      ),
                                     ),
                                     Container(
                                       color: Colors.blue,
                                       height: 48,
                                       width: 2,
                                     ),
-                                    TextButton(
-                                      child: const Icon(Icons.add),
-                                      onPressed: () {
-                                        BlocProvider.of<TimerCubit>(context)
-                                            .increment();
-                                      },
+                                    Expanded(
+                                      child: TextButton(
+                                        child: const Icon(Icons.add),
+                                        onPressed: () {
+                                          BlocProvider.of<TimerCubit>(context)
+                                              .increment();
+                                        },
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -128,24 +133,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                                 child: Row(
                                   children: [
-                                    TextButton(
-                                      child: const Icon(Icons.remove),
-                                      onPressed: () {
-                                        BlocProvider.of<TimerCubit>(context)
-                                            .decremRate();
-                                      },
+                                    Expanded(
+                                      child: TextButton(
+                                        child: const Icon(Icons.remove),
+                                        onPressed: () {
+                                          BlocProvider.of<TimerCubit>(context)
+                                              .decremRate();
+                                        },
+                                      ),
                                     ),
                                     Container(
                                       color: Colors.blue,
                                       height: 48,
                                       width: 2,
                                     ),
-                                    TextButton(
-                                      child: const Icon(Icons.add),
-                                      onPressed: () {
-                                        BlocProvider.of<TimerCubit>(context)
-                                            .incremRate();
-                                      },
+                                    Expanded(
+                                      child: TextButton(
+                                        child: const Icon(Icons.add),
+                                        onPressed: () {
+                                          BlocProvider.of<TimerCubit>(context)
+                                              .incremRate();
+                                        },
+                                      ),
                                     ),
                                   ],
                                 ),

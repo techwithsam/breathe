@@ -1,5 +1,6 @@
 import 'package:breathe/auth/onboarding.dart';
 import 'package:breathe/pages/homepage.dart';
+import 'package:breathe/widgets/bgimg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -19,8 +20,8 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(const Duration(seconds: 5), () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => result != null
-              ? HomePage(uid: result!.uid)
+          builder: (_) => result == null
+              ? HomePage()
               : const OnboardingScreen(),
         ),
       );
@@ -31,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        backgroundImage(),
+        backgroundImage('spl.jpg'),
         Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(
@@ -45,26 +46,6 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget backgroundImage() {
-    return ShaderMask(
-      shaderCallback: (bounds) => const LinearGradient(
-        colors: [Colors.black, Colors.black12],
-        begin: Alignment.bottomCenter,
-        end: Alignment.center,
-      ).createShader(bounds),
-      blendMode: BlendMode.darken,
-      child: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/spl.jpg'),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
-          ),
-        ),
-      ),
     );
   }
 }
