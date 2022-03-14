@@ -99,35 +99,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 : circleBar(false)),
                         ],
                       ),
-                      Visibility(
-                        visible: _currentIndex == 3 ? true : false,
-                        child: const SizedBox(height: 22),
-                      ),
-                      Visibility(
-                        visible: _currentIndex == 3 ? true : false,
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: MaterialButton(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const RegisterScreen(),
-                                ),
-                              );
-                            },
-                            padding: const EdgeInsets.only(top: 16, bottom: 20),
-                            child: const Text(
-                              'Continue',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w800,
+                      const SizedBox(height: 22),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: MaterialButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const RegisterScreen(),
                               ),
+                            );
+                          },
+                          padding: const EdgeInsets.only(top: 16, bottom: 20),
+                          child: const Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w800,
                             ),
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50.0),
-                            ),
+                          ),
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50.0),
                           ),
                         ),
                       )

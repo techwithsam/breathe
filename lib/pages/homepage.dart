@@ -23,12 +23,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    player.loop(
-      "audio.mp3",
-      isNotification: true,
-      stayAwake: true,
-      volume: 0.1,
-    );
     timer = Timer.periodic(
         const Duration(seconds: 5), (Timer t) => setState(() {}));
   }
@@ -54,6 +48,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         elevation: 0,
         centerTitle: true,
         title: const Text('Dashboard'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              player.loop(
+                "audio.mp3",
+                isNotification: true,
+                stayAwake: true,
+                volume: 0.1,
+              );
+            },
+            icon: const Icon(Icons.play_arrow_rounded),
+          )
+        ],
       ),
       drawer: Drawer(
         backgroundColor: Colors.white,
