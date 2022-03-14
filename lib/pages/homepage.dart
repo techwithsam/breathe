@@ -2,11 +2,12 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:breathe/pages/settings.dart';
 import 'package:breathe/widgets/bgimg.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  final String? uid;
-  const HomePage({Key? key, this.uid}) : super(key: key);
+  final String uid;
+  const HomePage({Key? key, required this.uid}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -14,7 +15,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final player = AudioCache();
+  AudioPlayer audioPlayer = AudioPlayer();
   Timer? timer;
+  bool pause = false;
+  final dbRef = FirebaseDatabase.instance.ref().child("Users");
   late final AnimationController animationController = AnimationController(
     duration: const Duration(seconds: 3),
     vsync: this,
@@ -51,14 +55,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         actions: [
           IconButton(
             onPressed: () {
-              player.loop(
-                "audio.mp3",
-                isNotification: true,
-                stayAwake: true,
-                volume: 0.1,
-              );
+              pause ? audioPlayer.stop() : audioPlayer.play("audio.mp3");
+              // : player.loop(
+              //     "audio.mp3",
+              //     isNotification: true,
+              //     stayAwake: true,
+              //     volume: 0.1,
+              //   );
+              setState(() {
+                pause = !pause;
+              });
             },
-            icon: const Icon(Icons.play_arrow_rounded),
+            icon: Icon(pause ? Icons.pause : Icons.play_arrow_rounded),
           )
         ],
       ),
