@@ -19,3 +19,10 @@ Widget backgroundImage(String img) {
     ),
   );
 }
+
+snackBar(String msg, BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(msg),
+    action: SnackBarAction(label: 'Close', onPressed: () {}),
+  ));
+}

@@ -1,7 +1,12 @@
+import 'dart:async';
 import 'package:breathe/auth/login.dart';
 import 'package:breathe/pages/homepage.dart';
+import 'package:breathe/widgets/bgimg.dart';
 import 'package:breathe/widgets/button_widget.dart';
+import 'package:breathe/widgets/social_buttons.dart';
 import 'package:breathe/widgets/textfield_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,8 +24,9 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   DateTime selectedDate = DateTime.now();
+  DatabaseReference db = FirebaseDatabase.instance.ref().child("Users");
   TextEditingController? _fname, _phn, _email, _pass, _ddate;
-  bool _obscureTextLogin = true;
+  bool _obscureTextLogin = true, load = false;
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +122,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       hintText: 'Enter password',
                       keyboardType: TextInputType.visiblePassword,
                       obscureText: _obscureTextLogin,
-                      textInputAction: TextInputAction.next,
+                      textInputAction: TextInputAction.done,
                       suffixIcon: IconButton(
                         onPressed: () => _toggleLogin(),
                         icon: _chgIcon(),
@@ -149,12 +155,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                       onTap: () async {
                         final DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: selectedDate,
-                          firstDate: DateTime.now(),
-                          lastDate:
-                              DateTime.now().add(const Duration(days: 1500)),
-                        );
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime(1880),
+                            lastDate: DateTime.now()
+                            // DateTime.now().add(const Duration(days: 1500)),
+                            );
                         if (picked != null) {
                           setState(() {
                             selectedDate = picked;
@@ -166,18 +172,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 40),
                     Center(
-                      child: ButtonWidget(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) =>  const HomePage(uid: ''),
+                      child: load
+                          ? const SizedBox(
+                              height: 30,
+                              width: 30,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.2,
                               ),
-                            );
-                          }
-                        },
-                        btnName: 'Sign Up',
-                      ),
+                            )
+                          : ButtonWidget(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  signUpWithForm();
+                                }
+                              },
+                              btnName: 'Sign Up',
+                            ),
                     ),
                     const SizedBox(height: 26),
                     Center(
@@ -209,6 +219,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 30),
+                    const Center(child: Text('Continue with')),
+                    const SizedBox(height: 25),
+                    const SocialButtons(),
                     const SizedBox(height: 40),
                   ],
                 ),
@@ -251,4 +265,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _pass!.dispose();
     super.dispose();
   }
+
+  void signUpWithForm() async {
+    startLoading();
+    try {
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: _email!.text, password: _pass!.text)
+          .then((value) {
+        db.child(value.user!.uid).set({
+          "uid": value.user!.uid,
+          "email": _email!.text,
+          "name": _fname!.text,
+          "phn": _phn!.text,
+          "dob": _ddate!.text,
+        }).then((res) {
+          stopLoading();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(uid: value.user!.uid),
+            ),
+          );
+        });
+      }).timeout(timeOut);
+    } on TimeoutException catch (_) {
+      snackBar(timeMsg, context);
+      stopLoading();
+    } on FirebaseAuthException catch (e) {
+      stopLoading();
+      if (e.code == 'email-already-in-use') {
+        snackBar(
+            'The email address is already in use by another account.', context);
+      } else if (e.code == 'network-request-failed') {
+        snackBar(noInternet, context);
+      } else {
+        snackBar('${e.message}', context);
+      }
+    }
+    stopLoading();
+  }
+
+  startLoading() {
+    setState(() {
+      load = true;
+    });
+  }
+
+  stopLoading() {
+    setState(() {
+      load = false;
+    });
+  }
 }
+
+const Duration timeOut = Duration(seconds: 30);
+const String timeMsg = 'Request timeout. Kindly try again';
+const String noInternet =
+    'No active internet connection, Kindly connect to the internet';
+const kStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
