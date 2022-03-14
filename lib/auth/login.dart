@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'package:breathe/auth/register.dart';
 import 'package:breathe/pages/homepage.dart';
+import 'package:breathe/widgets/bgimg.dart';
 import 'package:breathe/widgets/button_widget.dart';
+import 'package:breathe/widgets/social_buttons.dart';
 import 'package:breathe/widgets/textfield_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -14,9 +18,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController? _phn, _pass;
-  FocusNode? _passF;
-  bool _obscureTextLogin = true;
+  TextEditingController? _email, _pass;
+  bool _obscureTextLogin = true, _load = false;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 40),
                     const Text(
                       'Welcome Back',
                       style: TextStyle(
@@ -48,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 30),
                     AppTextFormField(
-                      controller: _phn,
+                      controller: _email,
                       text: 'Enter email',
                       hintText: 'Enter your email address',
                       keyboardType: TextInputType.emailAddress,
@@ -67,7 +71,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 22),
                     AppTextFormField(
                       controller: _pass,
-                      focusNode: _passF,
                       text: 'Password',
                       hintText: 'Enter password',
                       keyboardType: TextInputType.visiblePassword,
@@ -90,30 +93,43 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children: const [
-                        Text(
-                          'Forgot passwords',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontStyle: FontStyle.italic,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const HomePage(uid: ''),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Forgot passwords',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 40),
                     Center(
-                      child: ButtonWidget(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const HomePage(uid: ''),
+                      child: _load
+                          ? const SizedBox(
+                              height: 30,
+                              width: 30,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.2,
                               ),
-                            );
-                          }
-                        },
-                        btnName: 'Sign In',
-                      ),
+                            )
+                          : ButtonWidget(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  signInWithForm();
+                                }
+                              },
+                              btnName: 'Sign In',
+                            ),
                     ),
                     const SizedBox(height: 26),
                     Center(
@@ -148,25 +164,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 40),
                     const Center(child: Text('Continue with')),
                     const SizedBox(height: 25),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: const [
-                        SizedBox(width: 30),
-                        CircleAvatar(
-                          backgroundColor: Colors.white,
-                          backgroundImage: AssetImage('assets/google.png'),
-                        ),
-                        CircleAvatar(
-                          backgroundColor: Colors.white,
-                          backgroundImage: AssetImage('assets/facebook.png'),
-                        ),
-                        CircleAvatar(
-                          backgroundColor: Colors.white,
-                          backgroundImage: AssetImage('assets/apple.jpg'),
-                        ),
-                        SizedBox(width: 30),
-                      ],
-                    ),
+                    const SocialButtons(),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -192,16 +191,58 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _phn = TextEditingController();
+    _email = TextEditingController();
     _pass = TextEditingController();
-    _passF = FocusNode();
   }
 
   @override
   void dispose() {
-    _phn!.dispose();
+    _email!.dispose();
     _pass!.dispose();
-    _passF!.dispose();
     super.dispose();
+  }
+
+  void signInWithForm() async {
+    _startLoading();
+    try {
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: _email!.text, password: _pass!.text)
+          .then((value) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(uid: value.user!.uid),
+          ),
+        );
+      }).timeout(timeOut);
+    } on TimeoutException catch (_) {
+      snackBar(timeMsg, context);
+      _stopLoading();
+    } on FirebaseAuthException catch (e) {
+      _stopLoading();
+      if (e.code == 'user-not-found') {
+        snackBar('No user found for that email.', context);
+      } else if (e.code == 'wrong-password') {
+        snackBar('Wrong password provided for that user.', context);
+      } else if (e.code == 'network-request-failed') {
+        snackBar(noInternet, context);
+      } else {
+        snackBar('${e.message}', context);
+      }
+    }
+    _stopLoading();
+  }
+
+  _startLoading() {
+    setState(() {
+      _load = true;
+    });
+  }
+
+  _stopLoading() {
+    setState(() {
+      _load = false;
+    });
   }
 }
