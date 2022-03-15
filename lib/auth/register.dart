@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:breathe/auth/login.dart';
-import 'package:breathe/pages/homepage.dart';
+import 'package:breathe/pages/settings.dart';
 import 'package:breathe/widgets/bgimg.dart';
 import 'package:breathe/widgets/button_widget.dart';
 import 'package:breathe/widgets/social_buttons.dart';
@@ -284,7 +285,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePage(uid: value.user!.uid),
+              builder: (context) => SettingsScreen(uid: value.user!.uid),
             ),
           );
         });
@@ -293,6 +294,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       snackBar(timeMsg, context);
       stopLoading();
     } on FirebaseAuthException catch (e) {
+      log('${e.message} -- before');
       stopLoading();
       if (e.code == 'email-already-in-use') {
         snackBar(
@@ -300,6 +302,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else if (e.code == 'network-request-failed') {
         snackBar(noInternet, context);
       } else {
+        log('${e.message}');
         snackBar('${e.message}', context);
       }
     }

@@ -1,6 +1,6 @@
 import 'package:breathe/auth/firebase_service.dart';
 import 'package:breathe/auth/register.dart';
-import 'package:breathe/pages/homepage.dart';
+import 'package:breathe/pages/settings.dart';
 import 'package:breathe/widgets/bgimg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +56,7 @@ class _SocialButtonsState extends State<SocialButtons> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePage(uid: result!.uid),
+              builder: (context) => SettingsScreen(uid: result!.uid),
             ),
           );
         },

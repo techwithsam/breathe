@@ -55,13 +55,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         actions: [
           IconButton(
             onPressed: () {
-              pause ? audioPlayer.stop() : audioPlayer.play("audio.mp3");
-              // : player.loop(
-              //     "audio.mp3",
-              //     isNotification: true,
-              //     stayAwake: true,
-              //     volume: 0.1,
-              //   );
+              pause
+                  ? audioPlayer.stop() // : audioPlayer.play("audio.mp3");
+                  : player.loop(
+                      "audio.mp3",
+                      isNotification: true,
+                      stayAwake: true,
+                      volume: 0.5,
+                    );
               setState(() {
                 pause = !pause;
               });
@@ -99,7 +100,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 Navigator.pop(context);
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const SettingsScreen(),
+                    builder: (_) => SettingsScreen(uid: widget.uid),
                   ),
                 );
               },

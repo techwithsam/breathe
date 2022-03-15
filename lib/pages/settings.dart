@@ -1,17 +1,26 @@
+import 'package:breathe/auth/firebase_service.dart';
+import 'package:breathe/auth/register.dart';
 import 'package:breathe/cubit/timer_cubit.dart';
+import 'package:breathe/pages/homepage.dart';
 import 'package:breathe/widgets/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  final String uid;
+  const SettingsScreen({Key? key, required this.uid}) : super(key: key);
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  FirebaseService service = FirebaseService();
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,6 +28,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         elevation: 0,
         centerTitle: true,
         title: const Text('Settings'),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const HomePage(uid: ''),
+              ),
+            );
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -28,7 +47,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: TableCalendar(
                 firstDay: DateTime.now(),
                 lastDay: DateTime(2033),
-                focusedDay: DateTime.now(),
+                focusedDay: _focusedDay,
+                calendarFormat: _calendarFormat,
+                selectedDayPredicate: (day) {
+                  return isSameDay(_selectedDay, day);
+                },
+                onDaySelected: (selectedDay, focusedDay) {
+                  if (!isSameDay(_selectedDay, selectedDay)) {
+                    setState(() {
+                      _selectedDay = selectedDay;
+                      _focusedDay = focusedDay;
+                    });
+                  }
+                },
+                onFormatChanged: (format) {
+                  if (_calendarFormat != format) {
+                    setState(() {
+                      _calendarFormat = format;
+                    });
+                  }
+                },
+                onPageChanged: (focusedDay) {
+                  _focusedDay = focusedDay;
+                },
                 calendarStyle: CalendarStyle(
                   isTodayHighlighted: true,
                   disabledTextStyle: const TextStyle(color: Colors.grey),
@@ -168,7 +209,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 20),
                   ButtonWidget(
                     btnName: 'Log-out',
-                    onPressed: () {},
+                    onPressed: () async {
+                      await service.signOutFromGoogle().then(
+                        (value) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RegisterScreen(),
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
                   const SizedBox(height: 20),
                 ],
