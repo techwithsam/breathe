@@ -206,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _startLoading();
     try {
       await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
+          .signInWithEmailAndPassword(
               email: _email!.text, password: _pass!.text)
           .then((value) {
         Navigator.pushReplacement(

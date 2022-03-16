@@ -15,7 +15,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final player = AudioCache();
-  AudioPlayer audioPlayer = AudioPlayer();
   Timer? timer;
   bool pause = false;
   final dbRef = FirebaseDatabase.instance.ref().child("Users");
@@ -27,6 +26,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+      player.load('audio.mp3');
     timer = Timer.periodic(
         const Duration(seconds: 5), (Timer t) => setState(() {}));
   }
@@ -54,20 +54,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         title: const Text('Dashboard'),
         actions: [
           IconButton(
-            onPressed: () {
-              pause
-                  ? audioPlayer.stop() // : audioPlayer.play("audio.mp3");
-                  : player.loop(
-                      "audio.mp3",
-                      isNotification: true,
-                      stayAwake: true,
-                      volume: 0.5,
-                    );
-              setState(() {
-                pause = !pause;
-              });
-            },
-            icon: Icon(pause ? Icons.pause : Icons.play_arrow_rounded),
+            onPressed: () => player.clear(Uri.parse('audio.mp3')),
+            icon: const Icon(Icons.pause),
+          ),
+          IconButton(
+            onPressed: () => player.play('audio.mp3'),
+            icon: const Icon(Icons.play_arrow),
           )
         ],
       ),
