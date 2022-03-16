@@ -50,18 +50,19 @@ class _SocialButtonsState extends State<SocialButtons> {
   void signInWithGoogle() async {
     _startLoading();
     try {
-      await service.signInwithGoogle().then(
-        (value) {
-          User? result = FirebaseAuth.instance.currentUser;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SettingsScreen(uid: result!.uid),
-            ),
-          );
-        },
-      );
+      debugPrint('Information saved  csnsto database here');
+      await service.signInwithGoogle().then((value) {
+        debugPrint('Information saved  csnsto database here $value');
+        User? result = FirebaseAuth.instance.currentUser;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SettingsScreen(uid: result!.uid),
+          ),
+        );
+      });
     } on FirebaseAuthException catch (e) {
+      Navigator.of(context).pop();
       if (e.code == 'email-already-in-use') {
         snackBar(
             'The email address is already in use by another account.', context);
@@ -80,7 +81,10 @@ class _SocialButtonsState extends State<SocialButtons> {
       builder: (context) {
         return const Center(
           child: SizedBox(
-              width: 40, height: 40, child: CircularProgressIndicator()),
+            width: 40,
+            height: 40,
+            child: CircularProgressIndicator(),
+          ),
         );
       },
     );

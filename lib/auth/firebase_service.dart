@@ -18,10 +18,12 @@ class FirebaseService {
         accessToken: googleSignInAuthentication.accessToken,
         idToken: googleSignInAuthentication.idToken,
       );
+      debugPrint('Information saved to database - asa');
 
       final UserCredential authResult =
           await _auth.signInWithCredential(credential);
       final User? user = authResult.user;
+      debugPrint('Information saved to database - kdsk');
 
       db.child(user!.uid).set({
         "uid": user.uid,
@@ -32,10 +34,11 @@ class FirebaseService {
       }).then((value) {
         debugPrint('Information saved to database');
       });
-
+      debugPrint('Information saved  csnsto database');
       return 'signInWithGoogle succeeded: $user';
     } on FirebaseAuthException catch (e) {
       debugPrint(e.message);
+      debugPrint('Information saved to database - dsk');
       return e.message;
     }
   }
