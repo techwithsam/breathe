@@ -19,10 +19,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   ];
 
   final List<String> msgList = [
-    "DUMMY TEXT ONE FROM BREATHE",
-    "DUMMY TEXT TWO FROM BREATHE",
-    "DUMMY TEXT THREE FROM BREATHE",
-    "DUMMY TEXT FOUR FROM BREATHE",
+    "You will find free tutorials & advanced techniques @CENTER",
+    "Reduce stress & anxiety with every breathe",
+    "Set the breathing rate to a pace you find comfortable",
+    "Foucus your breathe in your heart",
   ];
 
   @override
