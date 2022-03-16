@@ -4,7 +4,6 @@ import 'package:breathe/pages/settings.dart';
 import 'package:breathe/widgets/bgimg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class SocialButtons extends StatefulWidget {
   const SocialButtons({Key? key}) : super(key: key);
@@ -30,7 +29,7 @@ class _SocialButtonsState extends State<SocialButtons> {
           ),
         ),
         GestureDetector(
-          onTap: () => snackBar('Coming soon', context),
+          onTap: () => singInWithFacebook(),
           child: const CircleAvatar(
             backgroundColor: Colors.white,
             backgroundImage: AssetImage('assets/facebook.png'),
@@ -52,7 +51,7 @@ class _SocialButtonsState extends State<SocialButtons> {
     _startLoading();
     try {
       debugPrint('Information saved  csnsto database here');
-      await service.signInwithGoogle().then((value) {
+      await service.signInWithGoogle().then((value) {
         debugPrint('Information saved  csnsto database here $value');
         User? result = FirebaseAuth.instance.currentUser;
         Navigator.pushReplacement(
@@ -76,15 +75,34 @@ class _SocialButtonsState extends State<SocialButtons> {
     Navigator.of(context).pop();
   }
 
-  // void singInWithFacebook() async {
-  //   _startLoading();
-  //   try{
-  //     final facebookloginResult = await FacebookAuth.instance.login();
-  //     final facebookauthcredential = FacebookAuthProvider.credential(facebookloginResult.accessToken.token);
-  //   }
+  void singInWithFacebook() async {
+    _startLoading();
+    try {
+      await service.signInWithFacebook().then((value) {
+        debugPrint('Value - $value');
+        User? result = FirebaseAuth.instance.currentUser;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SettingsScreen(uid: result!.uid),
+          ),
+        );
+      });
+    } on FirebaseAuthException catch (e) {
+      Navigator.of(context).pop();
+      if (e.code == 'email-already-in-use') {
+        snackBar(
+            'The email address is already in use by another account.', context);
+      } else if (e.code == 'network-request-failed') {
+        snackBar(noInternet, context);
+      } else {
+        snackBar('${e.message}', context);
+      }
+    }
+    Navigator.of(context).pop();
+  }
 
-
-  // }
+  void singInWithApple() async {}
 
   _startLoading() {
     showDialog(
