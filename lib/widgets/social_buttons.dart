@@ -4,6 +4,7 @@ import 'package:breathe/pages/settings.dart';
 import 'package:breathe/widgets/bgimg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class SocialButtons extends StatefulWidget {
   const SocialButtons({Key? key}) : super(key: key);
@@ -73,6 +74,16 @@ class _SocialButtonsState extends State<SocialButtons> {
     }
     Navigator.of(context).pop();
   }
+
+  // void singInWithFacebook() async {
+  //   _startLoading();
+  //   try{
+  //     final facebookloginResult = await FacebookAuth.instance.login();
+  //     final facebookauthcredential = FacebookAuthProvider.credential(facebookloginResult.accessToken.token);
+  //   }
+
+
+  // }
 
   _startLoading() {
     showDialog(
