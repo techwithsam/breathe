@@ -66,7 +66,7 @@ class FirebaseService {
         case LoginStatus.cancelled:
           return 'Facebook authentication cancelled!';
         case LoginStatus.failed:
-          return 'Facebook authentication failed!';
+          return 'Facebook authentication failed! ${result.message}'; 
         default:
           return null;
       }

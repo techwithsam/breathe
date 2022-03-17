@@ -55,52 +55,54 @@ class _SocialButtonsState extends State<SocialButtons> {
     _startLoading();
     try {
       debugPrint('Starting point...');
-      // await service.signInWithGoogle().then((value) {
-      //   debugPrint('Second point $value');
-      //   User? result = FirebaseAuth.instance.currentUser;
-      //   Navigator.pushReplacement(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) => SettingsScreen(uid: result!.uid),
-      //     ),
-      //   );
-      // });
-      final GoogleSignInAccount? googleSignInAccount =
-          await GoogleSignIn().signIn();
-      debugPrint("Check 1...");
-      final GoogleSignInAuthentication? googleSignInAuthentication =
-          await googleSignInAccount?.authentication;
-      debugPrint("Check 2...");
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleSignInAuthentication!.accessToken,
-        idToken: googleSignInAuthentication.idToken,
-      );
-      debugPrint("Check 3...");
-      debugPrint("Something happen here");
-
-      final UserCredential authResult =
-          await _auth.signInWithCredential(credential);
-      final User? user = authResult.user;
-
-      saveToDatabase(
-        dob: '',
-        email: user!.email,
-        name: user.displayName,
-        phn: user.phoneNumber,
-        uid: user.uid,
-      );
-      // 'signInWithGoogle succeeded: $user';
-      return await FirebaseAuth.instance
-          .signInWithCredential(credential)
-          .then((value) {
+      await service.signInWithGoogle().then((value) {
         debugPrint('Second point $value');
+        User? result = FirebaseAuth.instance.currentUser;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => SettingsScreen(uid: user.uid),
+            builder: (context) => SettingsScreen(uid: result!.uid),
           ),
         );
       });
+
+      //.-------------------
+      // final GoogleSignInAccount? googleSignInAccount =
+      //     await GoogleSignIn().signIn();
+      // debugPrint("Check 1...");
+      // final GoogleSignInAuthentication? googleSignInAuthentication =
+      //     await googleSignInAccount?.authentication;
+      // debugPrint("Check 2...");
+      // final AuthCredential credential = GoogleAuthProvider.credential(
+      //   accessToken: googleSignInAuthentication!.accessToken,
+      //   idToken: googleSignInAuthentication.idToken,
+      // );
+      // debugPrint("Check 3...");
+      // debugPrint("Something happen here");
+
+      // final UserCredential authResult =
+      //     await _auth.signInWithCredential(credential);
+      // final User? user = authResult.user;
+
+      // saveToDatabase(
+      //   dob: '',
+      //   email: user!.email,
+      //   name: user.displayName,
+      //   phn: user.phoneNumber,
+      //   uid: user.uid,
+      // );
+      // // 'signInWithGoogle succeeded: $user';
+      // return await FirebaseAuth.instance
+      //     .signInWithCredential(credential)
+      //     .then((value) {
+      //   debugPrint('Second point $value');
+      //   Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) => SettingsScreen(uid: user.uid),
+      //     ),
+      //   );
+      // });
     } on FirebaseAuthException catch (e) {
       Navigator.of(context).pop();
       if (e.code == 'email-already-in-use') {
