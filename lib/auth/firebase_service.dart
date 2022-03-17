@@ -66,7 +66,7 @@ class FirebaseService {
         case LoginStatus.cancelled:
           return 'Facebook authentication cancelled!';
         case LoginStatus.failed:
-          return 'Facebook authentication failed! ${result.message}'; 
+          return 'Facebook authentication failed! ${result.message}';
         default:
           return null;
       }
@@ -90,6 +90,8 @@ void saveToDatabase({uid, email, name, phn, dob}) {
     "name": name,
     "phn": phn,
     "dob": dob,
+    "image": [],
+    "audio": '',
   }).then((value) {
     debugPrint('Information saved to database');
   });

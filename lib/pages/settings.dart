@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:breathe/auth/firebase_service.dart';
 import 'package:breathe/auth/register.dart';
 import 'package:breathe/cubit/timer_cubit.dart';
 import 'package:breathe/pages/homepage.dart';
 import 'package:breathe/widgets/button_widget.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -20,6 +24,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  File? _image;
+  final ImagePicker _picker = ImagePicker();
+  List<XFile>? _imageFileList;
+  List<File> _imgList = [];
+
+  Future<void> openGallery() async {
+    final List<XFile>? image = await _picker.pickMultiImage();
+    // var image = await picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      if (image != null) {
+        _imageFileList = image;
+        // _image = File(image.path);
+        debugPrint('$image');
+      } else {
+        snackBar('No image selected.');
+      }
+    });
+  }
+
+  Future<void> pickMultiple() async {
+    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'png'],
+    );
+
+    if (result != null) {
+      // List<File> files =
+      //     result.paths.map((path) => File('$selectedDirectory')).toList();
+      // debugPrint(files.toString() + 'jhhhSSFDGHJ');
+      // setState(() {
+      //   _imgList = files;
+      // });
+      // debugPrint('$_imgList IKJKL');
+
+      List<PlatformFile> file = result.files;
+      debugPrint(file.toString().split(',').toString());
+      // debugPrint('${file.bytes}');
+      // debugPrint('${file.size}');
+      // debugPrint(file.extension);
+      // debugPrint(file.path);
+    } else {
+      // User canceled the picker
+      debugPrint('User canceled the picker');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,11 +142,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
               child: Column(
                 children: [
-                  getRow(text: 'Guide Sound', btnText: 'Sound-name'),
+                  getRow(
+                    text: 'Guide Sound',
+                    btnText: 'Sound-name',
+                    onPressed: () => pickMultiple(),
+                  ),
                   const SizedBox(height: 12),
-                  getRow(text: 'Guide Image', btnText: 'Image-name'),
+                  getRow(
+                    text: 'Guide Image',
+                    btnText: 'Image-name',
+                    onPressed: () => openGallery(),
+                  ),
+                  _image == null
+                      ? const Text('No image selected.')
+                      : Image.file(_image!, height: 30),
                   const SizedBox(height: 12),
-                  getRow(text: 'Reminder', btnText: 'Off'),
+                  getRow(
+                    text: 'Reminder',
+                    btnText: 'Off',
+                    onPressed: () {},
+                  ),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -232,13 +298,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget getRow({String? text, btnText}) {
+  snackBar(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg),
+      action: SnackBarAction(label: 'Close', onPressed: () {}),
+    ));
+  }
+
+  Widget getRow({String? text, btnText, void Function()? onPressed}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text('$text'),
         TextButton(
-          onPressed: () {},
+          onPressed: onPressed,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [

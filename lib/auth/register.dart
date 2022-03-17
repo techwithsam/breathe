@@ -280,6 +280,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "name": _fname!.text,
           "phn": _phn!.text,
           "dob": _ddate!.text,
+          "image": [],
+          "audio": '',
         }).then((res) {
           stopLoading();
           Navigator.pushReplacement(

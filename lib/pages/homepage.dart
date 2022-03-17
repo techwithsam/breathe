@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:breathe/pages/settings.dart';
 import 'package:breathe/widgets/bgimg.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
@@ -14,12 +15,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  final player = AudioCache();
-  AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+  User? result = FirebaseAuth.instance.currentUser;
+  AudioPlayer audioPlayer = AudioPlayer();
   String audioUrl =
       "https://firebasestorage.googleapis.com/v0/b/breathe-76f24.appspot.com/o/audio.mp3?alt=media&token=9d9e185d-8bad-41f2-90a8-b11dbb4d1c13";
   Timer? timer;
-  bool pause = false;
+  bool pause = false, isPlaying = true;
   final dbRef = FirebaseDatabase.instance.ref().child("Users");
   late final AnimationController animationController = AnimationController(
     duration: const Duration(seconds: 3),
@@ -29,7 +30,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    audioPlayer.setUrl(audioUrl);
     timer = Timer.periodic(
         const Duration(seconds: 5), (Timer t) => setState(() {}));
   }
@@ -53,60 +53,37 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        centerTitle: true,
         title: const Text('Dashboard'),
         actions: [
-          IconButton(
+          TextButton.icon(
             onPressed: () async {
-              // int result = await audioPlayer.pause();
-              // debugPrint('$result');
-              await audioPlayer.stop();
-              await audioPlayer.notificationService.clearNotification();
+              setState(() {
+                isPlaying = !isPlaying;
+              });
+              await audioPlayer.setUrl(audioUrl);
+              isPlaying
+                  ? await audioPlayer.play(audioUrl)
+                  : await audioPlayer.pause();
             },
-            icon: const Icon(Icons.pause),
+            icon: Icon(isPlaying ? Icons.play_arrow : Icons.pause),
+            label: Text(isPlaying ? 'Starting playing' : 'Stop playing'),
           ),
-          IconButton(
-            onPressed: () async {
-              // player.play('audio.mp3');
-              // int result = await audioPlayer.play(audioUrl);
-              // debugPrint('$result');
-              await audioPlayer.notificationService.startHeadlessService();
-              await audioPlayer.notificationService.setNotification(
-                title: 'My Song',
-                albumTitle: 'My Album',
-                artist: 'My Artist',
-                imageUrl: 'Image URL or blank',
-                forwardSkipInterval: const Duration(seconds: 30),
-                backwardSkipInterval: const Duration(seconds: 30),
-                duration: const Duration(minutes: 3),
-                elapsedTime: const Duration(seconds: 15),
-                enableNextTrackButton: true,
-                enablePreviousTrackButton: true,
-              );
-
-              await audioPlayer.play(
-                audioUrl,
-                isLocal: false,
-              );
-            },
-            icon: const Icon(Icons.play_arrow),
-          )
         ],
       ),
       drawer: Drawer(
         backgroundColor: Colors.white,
         child: Column(
           children: [
-            const UserAccountsDrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFF000000)),
-              accountName: Text(
+            UserAccountsDrawerHeader(
+              decoration: const BoxDecoration(color: Color(0xFF000000)),
+              accountName: const Text(
                 'Hello There,',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              accountEmail: Text(''),
+              accountEmail: Text('${result!.displayName}'),
             ),
             ListTile(
               leading: Icon(Icons.settings,
