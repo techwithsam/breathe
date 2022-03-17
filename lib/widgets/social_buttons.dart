@@ -2,10 +2,12 @@ import 'package:breathe/auth/firebase_service.dart';
 import 'package:breathe/auth/register.dart';
 import 'package:breathe/pages/settings.dart';
 import 'package:breathe/widgets/bgimg.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class SocialButtons extends StatefulWidget {
   const SocialButtons({Key? key}) : super(key: key);
@@ -31,7 +33,7 @@ class _SocialButtonsState extends State<SocialButtons> {
           ),
         ),
         GestureDetector(
-          onTap: () => _loginwithFacebook(),
+          onTap: () => singInWithFacebook(),
           child: const CircleAvatar(
             backgroundColor: Colors.white,
             backgroundImage: AssetImage('assets/facebook.png'),
@@ -49,58 +51,83 @@ class _SocialButtonsState extends State<SocialButtons> {
     );
   }
 
-  var loading = false;
-
-  void _loginwithFacebook() async {
-    _startLoading();
-
-    try{
-      final facebookloginResult = await FacebookAuth.instance.login();
-      final userData = await FacebookAuth.instance.getUserData();
-       User? result = FirebaseAuth.instance.currentUser;
-
-     final facebookauthCredential = FacebookAuthProvider.credential(facebookloginResult.accessToken!.token);
-     await FirebaseAuth.instance.signInWithCredential(facebookauthCredential);
-     await FirebaseFirestore.instance.collection('user').add({
-       'email' : userData['email'],
-       'imageUrl' : userData['picture']['data']['url'],
-       'name' : userData['name'],
-     });
-
-      Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SettingsScreen(uid: result!.uid),
-            ),
-          );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
-        snackBar(
-            'The email address is already in use by another account.', context);
-      } else if (e.code == 'network-request-failed') {
-        snackBar(noInternet, context);
-      } else {
-        snackBar('${e.message}', context);
-      }
-    }
-    Navigator.of(context).pop();
-
-  }
-
-  void signInWithGoogle() async {
+  signInWithGoogle() async {
     _startLoading();
     try {
-      await service.signInwithGoogle().then(
-        (value) {
-          User? result = FirebaseAuth.instance.currentUser;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SettingsScreen(uid: result!.uid),
-            ),
-          );
-        },
+      debugPrint('Starting point...');
+      // await service.signInWithGoogle().then((value) {
+      //   debugPrint('Second point $value');
+      //   User? result = FirebaseAuth.instance.currentUser;
+      //   Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) => SettingsScreen(uid: result!.uid),
+      //     ),
+      //   );
+      // });
+      final GoogleSignInAccount? googleSignInAccount =
+          await GoogleSignIn().signIn();
+      debugPrint("Check 1...");
+      final GoogleSignInAuthentication? googleSignInAuthentication =
+          await googleSignInAccount?.authentication;
+      debugPrint("Check 2...");
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleSignInAuthentication!.accessToken,
+        idToken: googleSignInAuthentication.idToken,
       );
+      debugPrint("Check 3...");
+      debugPrint("Something happen here");
+
+      final UserCredential authResult =
+          await _auth.signInWithCredential(credential);
+      final User? user = authResult.user;
+
+      saveToDatabase(
+        dob: '',
+        email: user!.email,
+        name: user.displayName,
+        phn: user.phoneNumber,
+        uid: user.uid,
+      );
+      // 'signInWithGoogle succeeded: $user';
+      return await FirebaseAuth.instance
+          .signInWithCredential(credential)
+          .then((value) {
+        debugPrint('Second point $value');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SettingsScreen(uid: user.uid),
+          ),
+        );
+      });
+    } on FirebaseAuthException catch (e) {
+      Navigator.of(context).pop();
+      if (e.code == 'email-already-in-use') {
+        snackBar(
+            'The email address is already in use by another account.', context);
+      } else if (e.code == 'network-request-failed') {
+        snackBar(noInternet, context);
+      } else {
+        snackBar('${e.message}', context);
+      }
+    }
+    Navigator.of(context).pop();
+  }
+
+  void singInWithFacebook() async {
+    _startLoading();
+    try {
+      await service.signInWithFacebook().then((value) {
+        debugPrint('Value - $value');
+        User? result = FirebaseAuth.instance.currentUser;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SettingsScreen(uid: result!.uid),
+          ),
+        );
+      });
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         snackBar(
@@ -113,6 +140,8 @@ class _SocialButtonsState extends State<SocialButtons> {
     }
     Navigator.of(context).pop();
   }
+
+  void singInWithApple() async {}
 
   _startLoading() {
     showDialog(
