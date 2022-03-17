@@ -3,8 +3,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-
-
     <application
         android:label="Breathe"
         android:name="${applicationName}"

@@ -4,6 +4,9 @@ import 'package:breathe/pages/settings.dart';
 import 'package:breathe/widgets/bgimg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class SocialButtons extends StatefulWidget {
   const SocialButtons({Key? key}) : super(key: key);
@@ -47,17 +50,53 @@ class _SocialButtonsState extends State<SocialButtons> {
     );
   }
 
-  void signInWithGoogle() async {
+  signInWithGoogle() async {
     _startLoading();
     try {
-      debugPrint('Information saved  csnsto database here');
-      await service.signInWithGoogle().then((value) {
-        debugPrint('Information saved  csnsto database here $value');
-        User? result = FirebaseAuth.instance.currentUser;
+      debugPrint('Starting point...');
+      // await service.signInWithGoogle().then((value) {
+      //   debugPrint('Second point $value');
+      //   User? result = FirebaseAuth.instance.currentUser;
+      //   Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) => SettingsScreen(uid: result!.uid),
+      //     ),
+      //   );
+      // });
+      final GoogleSignInAccount? googleSignInAccount =
+          await GoogleSignIn().signIn();
+      debugPrint("Check 1...");
+      final GoogleSignInAuthentication? googleSignInAuthentication =
+          await googleSignInAccount?.authentication;
+      debugPrint("Check 2...");
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleSignInAuthentication!.accessToken,
+        idToken: googleSignInAuthentication.idToken,
+      );
+      debugPrint("Check 3...");
+      debugPrint("Something happen here");
+
+      final UserCredential authResult =
+          await _auth.signInWithCredential(credential);
+      final User? user = authResult.user;
+
+      saveToDatabase(
+        dob: '',
+        email: user!.email,
+        name: user.displayName,
+        phn: user.phoneNumber,
+        uid: user.uid,
+      );
+      // 'signInWithGoogle succeeded: $user';
+      return await FirebaseAuth.instance
+          .signInWithCredential(credential)
+          .then((value) {
+        debugPrint('Second point $value');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => SettingsScreen(uid: result!.uid),
+            builder: (context) => SettingsScreen(uid: user.uid),
           ),
         );
       });

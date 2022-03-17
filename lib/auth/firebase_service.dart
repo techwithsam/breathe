@@ -10,16 +10,21 @@ class FirebaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  Future<String?> signInWithGoogle() async {
+  Future signInWithGoogle() async {
     try {
+      debugPrint("signInWithGoogle");
       final GoogleSignInAccount? googleSignInAccount =
-          await _googleSignIn.signIn();
-      final GoogleSignInAuthentication googleSignInAuthentication =
-          await googleSignInAccount!.authentication;
+          await GoogleSignIn().signIn();
+      debugPrint("Check 1...");
+      final GoogleSignInAuthentication? googleSignInAuthentication =
+          await googleSignInAccount?.authentication;
+      debugPrint("Check 2...");
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleSignInAuthentication.accessToken,
+        accessToken: googleSignInAuthentication!.accessToken,
         idToken: googleSignInAuthentication.idToken,
       );
+      debugPrint("Check 3...");
+      debugPrint("Something happen here");
 
       final UserCredential authResult =
           await _auth.signInWithCredential(credential);
@@ -32,7 +37,8 @@ class FirebaseService {
         phn: user.phoneNumber,
         uid: user.uid,
       );
-      return 'signInWithGoogle succeeded: $user';
+      'signInWithGoogle succeeded: $user';
+      return await FirebaseAuth.instance.signInWithCredential(credential);
     } on FirebaseAuthException catch (e) {
       debugPrint(e.message);
       return e.message;
