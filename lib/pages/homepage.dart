@@ -15,6 +15,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final player = AudioCache();
+  AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+  String audioUrl =
+      "https://firebasestorage.googleapis.com/v0/b/breathe-76f24.appspot.com/o/audio.mp3?alt=media&token=9d9e185d-8bad-41f2-90a8-b11dbb4d1c13";
   Timer? timer;
   bool pause = false;
   final dbRef = FirebaseDatabase.instance.ref().child("Users");
@@ -26,7 +29,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-      player.load('audio.mp3');
+    audioPlayer.setUrl(audioUrl);
     timer = Timer.periodic(
         const Duration(seconds: 5), (Timer t) => setState(() {}));
   }
@@ -54,11 +57,38 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         title: const Text('Dashboard'),
         actions: [
           IconButton(
-            onPressed: () => player.clear(Uri.parse('audio.mp3')),
+            onPressed: () async {
+              // int result = await audioPlayer.pause();
+              // debugPrint('$result');
+              await audioPlayer.stop();
+              await audioPlayer.notificationService.clearNotification();
+            },
             icon: const Icon(Icons.pause),
           ),
           IconButton(
-            onPressed: () => player.play('audio.mp3'),
+            onPressed: () async {
+              // player.play('audio.mp3');
+              // int result = await audioPlayer.play(audioUrl);
+              // debugPrint('$result');
+              await audioPlayer.notificationService.startHeadlessService();
+              await audioPlayer.notificationService.setNotification(
+                title: 'My Song',
+                albumTitle: 'My Album',
+                artist: 'My Artist',
+                imageUrl: 'Image URL or blank',
+                forwardSkipInterval: const Duration(seconds: 30),
+                backwardSkipInterval: const Duration(seconds: 30),
+                duration: const Duration(minutes: 3),
+                elapsedTime: const Duration(seconds: 15),
+                enableNextTrackButton: true,
+                enablePreviousTrackButton: true,
+              );
+
+              await audioPlayer.play(
+                audioUrl,
+                isLocal: false,
+              );
+            },
             icon: const Icon(Icons.play_arrow),
           )
         ],
