@@ -2,6 +2,7 @@ import 'package:breathe/auth/firebase_service.dart';
 import 'package:breathe/auth/register.dart';
 import 'package:breathe/pages/settings.dart';
 import 'package:breathe/widgets/bgimg.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -30,7 +31,7 @@ class _SocialButtonsState extends State<SocialButtons> {
           ),
         ),
         GestureDetector(
-          onTap: () => snackBar('Coming soon', context),
+          onTap: () => _loginwithFacebook(),
           child: const CircleAvatar(
             backgroundColor: Colors.white,
             backgroundImage: AssetImage('assets/facebook.png'),
@@ -48,22 +49,59 @@ class _SocialButtonsState extends State<SocialButtons> {
     );
   }
 
+  var loading = false;
+
+  void _loginwithFacebook() async {
+    _startLoading();
+
+    try{
+      final facebookloginResult = await FacebookAuth.instance.login();
+      final userData = await FacebookAuth.instance.getUserData();
+       User? result = FirebaseAuth.instance.currentUser;
+
+     final facebookauthCredential = FacebookAuthProvider.credential(facebookloginResult.accessToken!.token);
+     await FirebaseAuth.instance.signInWithCredential(facebookauthCredential);
+     await FirebaseFirestore.instance.collection('user').add({
+       'email' : userData['email'],
+       'imageUrl' : userData['picture']['data']['url'],
+       'name' : userData['name'],
+     });
+
+      Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SettingsScreen(uid: result!.uid),
+            ),
+          );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        snackBar(
+            'The email address is already in use by another account.', context);
+      } else if (e.code == 'network-request-failed') {
+        snackBar(noInternet, context);
+      } else {
+        snackBar('${e.message}', context);
+      }
+    }
+    Navigator.of(context).pop();
+
+  }
+
   void signInWithGoogle() async {
     _startLoading();
     try {
-      debugPrint('Information saved  csnsto database here');
-      await service.signInwithGoogle().then((value) {
-        debugPrint('Information saved  csnsto database here $value');
-        User? result = FirebaseAuth.instance.currentUser;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SettingsScreen(uid: result!.uid),
-          ),
-        );
-      });
+      await service.signInwithGoogle().then(
+        (value) {
+          User? result = FirebaseAuth.instance.currentUser;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SettingsScreen(uid: result!.uid),
+            ),
+          );
+        },
+      );
     } on FirebaseAuthException catch (e) {
-      Navigator.of(context).pop();
       if (e.code == 'email-already-in-use') {
         snackBar(
             'The email address is already in use by another account.', context);
@@ -76,26 +114,13 @@ class _SocialButtonsState extends State<SocialButtons> {
     Navigator.of(context).pop();
   }
 
-  // void singInWithFacebook() async {
-  //   _startLoading();
-  //   try{
-  //     final facebookloginResult = await FacebookAuth.instance.login();
-  //     final facebookauthcredential = FacebookAuthProvider.credential(facebookloginResult.accessToken.token);
-  //   }
-
-
-  // }
-
   _startLoading() {
     showDialog(
       context: context,
       builder: (context) {
         return const Center(
           child: SizedBox(
-            width: 40,
-            height: 40,
-            child: CircularProgressIndicator(),
-          ),
+              width: 40, height: 40, child: CircularProgressIndicator()),
         );
       },
     );
