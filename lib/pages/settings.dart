@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:breathe/auth/firebase_service.dart';
 import 'package:breathe/auth/register.dart';
 import 'package:breathe/cubit/timer_cubit.dart';
@@ -8,7 +7,6 @@ import 'package:breathe/widgets/button_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -24,27 +22,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  File? _image;
-  final ImagePicker _picker = ImagePicker();
-  List<XFile>? _imageFileList;
-  List<File> _imgList = [];
+  List<String>? _image;
+  File? audio;
 
-  Future<void> openGallery() async {
-    final List<XFile>? image = await _picker.pickMultiImage();
-    // var image = await picker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      if (image != null) {
-        _imageFileList = image;
-        // _image = File(image.path);
-        debugPrint('$image');
-      } else {
-        snackBar('No image selected.');
-      }
-    });
+  Future<void> pickAudio() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.custom,
+      allowedExtensions: ['mp3'],
+    );
+
+    if (result != null) {
+      File file = File('${result.files.single.path}');
+      setState(() {
+        audio = file;
+      });
+    } else {
+      debugPrint('User canceled the picker');
+    }
   }
 
-  Future<void> pickMultiple() async {
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+  Future<void> pickMultipleImage() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
@@ -52,22 +50,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     if (result != null) {
-      // List<File> files =
-      //     result.paths.map((path) => File('$selectedDirectory')).toList();
-      // debugPrint(files.toString() + 'jhhhSSFDGHJ');
-      // setState(() {
-      //   _imgList = files;
-      // });
-      // debugPrint('$_imgList IKJKL');
-
       List<PlatformFile> file = result.files;
-      debugPrint(file.toString().split(',').toString());
-      // debugPrint('${file.bytes}');
-      // debugPrint('${file.size}');
-      // debugPrint(file.extension);
-      // debugPrint(file.path);
+      setState(() {
+        _image = file.map((e) => e.path).cast<String>().toList();
+      });
+      debugPrint(file.map((e) => e.path).toList().toString());
+      debugPrint(file.map((e) => e.path).cast<File>().toList().toString());
     } else {
-      // User canceled the picker
       debugPrint('User canceled the picker');
     }
   }
@@ -145,17 +134,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   getRow(
                     text: 'Guide Sound',
                     btnText: 'Sound-name',
-                    onPressed: () => pickMultiple(),
+                    onPressed: () => pickAudio(),
                   ),
+                  audio == null
+                      ? const Text('No audio selected.')
+                      : Text('$audio'),
                   const SizedBox(height: 12),
                   getRow(
                     text: 'Guide Image',
                     btnText: 'Image-name',
-                    onPressed: () => openGallery(),
+                    onPressed: () => pickMultipleImage(),
                   ),
                   _image == null
                       ? const Text('No image selected.')
-                      : Image.file(_image!, height: 30),
+                      : Row(
+                          children: List.generate(
+                            _image!.length > 5 ? 5 : _image!.length,
+                            (index) => Padding(
+                              padding: const EdgeInsets.only(right: 10.0),
+                              child: Image.file(
+                                File(_image![index]),
+                                height: 35,
+                              ),
+                            ),
+                          ),
+                        ),
                   const SizedBox(height: 12),
                   getRow(
                     text: 'Reminder',
